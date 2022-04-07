@@ -1,10 +1,15 @@
 import requests
 
-url = 'http://192.168.1.54:5000/new_user'
-r = requests.post(url,  data={
+url1 = 'https://httpbin.org/anything'
+url2 = 'http://0.0.0.0:5000/new_user'
+data = {
     'id': 'sample_id', 
-    'songs': [
-        {'id': 'spotify:track:27NovPIUIRrOZoCHxABJwK'},
-        {'id': 'spotify:track:6pmNoWKk0r6zfIjWneJRxR'}
-        ]
-    })
+    'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
+}
+print(data['songs'])
+r = requests.post(url2,  json=data)
+print(r.text)
+
+#url = 'http://0.0.0.0:5000/get_song'
+#r = requests.get(url)
+#print(r.text)
