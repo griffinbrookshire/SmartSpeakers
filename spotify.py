@@ -4,9 +4,10 @@ Main Webserver to for Smart Speaker
 
 
 # Relevant Imports
+import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from flask import Flask, request
+from flask import Flask, request, make_response, jsonify
 
 
 # Globals for Spotify Authentication, these should be passed by env variables
@@ -58,6 +59,21 @@ def get_song():
         break
     songs.remove(element)
     return str(element)
+
+'''
+End point on Griffin's request
+Returns list of songs in queue
+'''
+@app.route('/current_queue', methods=["GET"])
+def current_queue():
+    if len(songs) == 0:
+        return "No songs in queue."
+    response = make_response(
+        jsonify(
+            {'songs': list(songs)}
+            )
+    )
+    return response
 
 if __name__ == '__main__':
     # Authenticate
