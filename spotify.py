@@ -8,7 +8,8 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, make_response, jsonify
-
+import argparse 
+import requests
 
 # Globals for Spotify Authentication, these should be passed by env variables
 username = 'teamtopdeck9000'
@@ -22,6 +23,8 @@ scope = ["user-library-read", "user-read-currently-playing", "playlist-read-coll
 subscribed_users = []
 songs = set()
 
+# Route for the POST request
+route = '/update_song'
 
 app = Flask(__name__)
 
@@ -58,6 +61,15 @@ def get_song():
     for element in songs:
         break
     songs.remove(element)
+    track = spotifyObject.track(element)
+    track_name = track.get('name')
+    artist_name = track.get('artists')[0].get('name')
+    lcd_url_route = 'http://' + args.address + ":" + args.port + route
+    song_data = {
+        'artist': artist_name, 
+        'title': track_name
+    }
+    r = requests.post(lcd_url_route, json = song_data)
     return str(element)
 
 '''
@@ -76,6 +88,15 @@ def current_queue():
     return response
 
 if __name__ == '__main__':
+    # cli args
+    parser = argparse.ArgumentParser(description = 'Main service command parser')
+    parser.add_argument('-a', '--address', default = '0.0.0.0', help = "The ip address of the lcd screen")
+    parser.add_argument('-p', '--port', default = '5000', help = "The port of the lcd screen")
+    args = parser.parse_args()
+    
+    address = args.address
+    port = args.port
+    
     # Authenticate
     spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID,clientSecret,redirectURI, scope = scope ))
 
