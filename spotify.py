@@ -80,9 +80,12 @@ Returns list of songs in queue
 def current_queue():
     if len(songs) == 0:
         return "No songs in queue."
+    resp_list = []
+    for i, song in enumerate(list(songs)):
+        resp_list.append({'id': str(i), 'title': song})
     response = make_response(
         jsonify(
-            {'songs': list(songs)}
+            {'songs': resp_list}
             )
     )
     return response
