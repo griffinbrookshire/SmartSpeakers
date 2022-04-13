@@ -1,9 +1,15 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import { LoginScreen } from './screens/loginScreen.js';
+import { QueueScreen } from './screens/queueScreen.js';
+import { ProfileScreen } from './screens/profileScreen.js';
+import { MusicScreen } from './screens/musicScreen.js';
 
+const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
 /**
@@ -15,42 +21,53 @@ const Tab = createMaterialBottomTabNavigator();
  function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator barStyle={{ backgroundColor: "rgba(232,40,49,1.0)" }}>
-        {/* <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          initialParams={ props.route.params }
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Icon name='account' size={24} color={color} />
-            ),
-            tabBarLabel: 'Profile'
-          }}
-        /> */}
-        <Tab.Screen name="Home" component={LoginScreen} />
-        {/* <Tab.Screen
-          name="Queue"
-          component={LoginScreen}
-          // initialParams={ props.route.params }
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Icon name='car' size={24} color={color} />
-            ),
-            tabBarLabel: 'Queue'
-          }}
-        /> */}
-        {/* <Tab.Screen
-          name="RideHistory"
-          component={RideHistoryScreen}
-          initialParams={ props.route.params }
-          options={{
-            tabBarIcon: ({ color }) => (
-              <Icon name='history' size={24} color={color} />
-            ),
-            tabBarLabel: 'Trips'
-          }}
-        /> */}
-      </Tab.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false
+        }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        {/* Allows children elements of 'TabNavigation' to all view the same params */}
+        <Stack.Screen name="TabNavigation" >
+          { (props) => (
+            <Tab.Navigator barStyle={{ backgroundColor: "rgba(30,215,96,1.0)" }}>
+              <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                initialParams={ props.route.params }
+                options={{
+                  tabBarIcon: ({ color }) => (
+                    <Icon name='account' size={24} color={color} />
+                  ),
+                  tabBarLabel: 'Profile'
+                }}
+              />
+              <Tab.Screen
+                name="Queue"
+                component={QueueScreen}
+                initialParams={ props.route.params }
+                options={{
+                  tabBarIcon: ({ color }) => (
+                    <Icon name='car' size={24} color={color} />
+                  ),
+                  tabBarLabel: 'Queue'
+                }}
+              />
+              <Tab.Screen
+                name="RideHistory"
+                component={MusicScreen}
+                initialParams={ props.route.params }
+                options={{
+                  tabBarIcon: ({ color }) => (
+                    <Icon name='history' size={24} color={color} />
+                  ),
+                  tabBarLabel: 'Your Music'
+                }}
+              />
+            </Tab.Navigator>
+          )}
+        </Stack.Screen>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

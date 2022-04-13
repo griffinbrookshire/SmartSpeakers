@@ -46,6 +46,7 @@ export const LoginScreen = ({ navigation }) => {
     if (response?.type === 'success') {
       if (response.params.access_token) {
         setToken(response.params.access_token);
+        navigation.navigate('TabNavigation', { screen: 'Queue' });
       } else {
         console.log("in use effect")
         console.log(response)
@@ -66,10 +67,10 @@ export const LoginScreen = ({ navigation }) => {
     console.log(`using token: ${token}`)
     const options = {
       method: 'GET',
-      headers: {'Authorization': 'Bearer ' + token,
-                'Proxy-Authorization': 'Bearer ' + token}
-      // headers: {'Content-Type': 'application/json',
-      //           'Authorization': 'Bearer ' + token}
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
+      },
     };
     console.log(options);
     fetch(`http://api.spotify.com/me`, options)
@@ -90,12 +91,10 @@ export const LoginScreen = ({ navigation }) => {
   }
 
   return (
-    <View>
+    <View style={styles.container}>
+      <Text style={styles.titleText}>SmartSpeakers</Text>
       <TouchableOpacity style={styles.loginButton} onPress={() => login()}>
         <Text>Sign In</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.loginButton} onPress={() => printToken()}>
-        <Text>Print Token</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.loginButton} onPress={() => getUser()}>
         <Text>Get User</Text>
