@@ -22,6 +22,8 @@ scope = ["user-library-read", "user-read-currently-playing", "playlist-read-coll
 # Globals to maintain who is subscribed and what songs we can play
 subscribed_users = []
 songs = set()
+owners_songs = set()
+users_priority = {}
 
 # Route for the POST request
 route = '/update_song'
@@ -33,18 +35,22 @@ accepts user id and selected songs and adds it to our subscribed users list
 expects request body in form
 {
     'id': 'sample_id', 
+    'priority': 0 or 1
     'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
 }
 '''
 @app.route('/new_user', methods=["POST"])
 def new_user():
     global songs
+    new_user_priority = request.get_json().get('priority')
     new_user_id = request.get_json().get('id')
     new_user_songs = request.get_json().get('songs')
     if not new_user_id in subscribed_users and not new_user_id == None:
         subscribed_users.append(new_user_id)
+        users_priority[new_user_id] = new_user_priority
         new_set = set(new_user_songs)
-        songs = set.intersection(songs, new_set)
+        temp_songs = set.intersection(owners_songs, new_set)
+        songs = set.union(temp_songs, songs)
         return "Connected Successfully"
     
     return "A Problem Occurred"
@@ -108,6 +114,7 @@ if __name__ == '__main__':
     for item in saved_tracks['items']:
         song_uri = item['track']['uri']
         songs.add(song_uri)
+        owners_songs.add(song_uri)
 
     # Disallow the owner from reconnecting
     user = spotifyObject.current_user()

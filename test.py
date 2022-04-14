@@ -4,6 +4,7 @@ url1 = 'https://httpbin.org/anything'
 url2 = 'http://0.0.0.0:5000/new_user'
 data = {
     'id': 'sample_id', 
+    'priority': 1,
     'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
 }
 #print(data['songs'])
