@@ -1,13 +1,11 @@
 import requests
-from multiset import *
-from song import Song
 
 url1 = 'https://httpbin.org/anything'
 url2 = 'http://0.0.0.0:5000/new_user'
 data = {
-    'id': 'sample_id2', 
-    'priority': 1,
-    'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
+    'id': 'sample_id3', 
+    'priority': 2,
+    'songs': ['spotify:track:1ojBtNRMzjL7ptLPZCzfRz']
 }
 #print(data['songs'])
 r = requests.post(url2,  json=data)

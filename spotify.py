@@ -4,14 +4,12 @@ Main Webserver to for Smart Speaker
 
 
 # Relevant Imports
-import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, make_response, jsonify
 import argparse 
 import requests
-from multiset import *
-from song import Song
+from base_multi_set import BaseMultiSet
 
 # Globals for Spotify Authentication, these should be passed by env variables
 username = 'teamtopdeck9000'
@@ -23,8 +21,8 @@ scope = ["user-library-read", "user-read-currently-playing", "playlist-read-coll
 
 # Globals to maintain who is subscribed and what songs we can play
 subscribed_users = []
-songs = Multiset()
-owners_songs = Multiset()
+songs = BaseMultiSet()
+owners_songs = BaseMultiSet()
 users_priority = {}
 
 # Route for the POST request
@@ -47,17 +45,17 @@ def new_user():
     new_user_priority = request.get_json().get('priority')
     new_user_id = request.get_json().get('id')
     new_user_songs = request.get_json().get('songs')
-    object_songs = []
-    for new_song in new_user_songs: 
-        object_songs.append(Song(new_song))
     if not new_user_id in subscribed_users and not new_user_id == None:
         subscribed_users.append(new_user_id)
         users_priority[new_user_id] = new_user_priority
-        new_set = Multiset(object_songs)
+        new_set = BaseMultiSet()
+        for song in new_user_songs:
+            new_set.append(song)
         if new_user_priority == 2:
-            new_set = new_set.combine(new_set)
+            new_set = new_set.union(new_set)
         temp_songs = owners_songs.intersection(new_set)
-        songs = temp_songs.combine(songs)
+        songs = temp_songs.union(songs)
+        songs.show()
         return "Connected Successfully"
     
     return "A Problem Occurred"
@@ -68,21 +66,12 @@ speaker code will make a request to get Spotify URI for next song to play
 @app.route('/get_song', methods=["GET"])
 def get_song():
     global songs
-    for song in songs:
-        track = spotifyObject.track(song.song_id)
-        print(track.get('name'))
     # check if our built playlist is empty
-    if len(songs) == 0:
+    if len(songs.data) == 0:
         return "Playlist is empty"
     # O(1) way to get first element from the set
-    for element in songs:
-        break
-    current_list = list(songs)
-    for song in current_list:
-        if song.song_id == element.song_id:
-            current_list.remove(song)
-    songs = Multiset(current_list)
-    track = spotifyObject.track(element.song_id)
+    element = songs.choose_and_remove()
+    track = spotifyObject.track(element)
     track_name = track.get('name')
     artist_name = track.get('artists')[0].get('name')
     lcd_url_route = 'http://' + args.address + ":" + args.port + route
@@ -91,7 +80,7 @@ def get_song():
         'title': track_name
     }
     r = requests.post(lcd_url_route, json = song_data)
-    return str(element.song_id)
+    return str(element)
 
 '''
 End point on Griffin's request
@@ -99,11 +88,11 @@ Returns list of songs in queue
 '''
 @app.route('/current_queue', methods=["GET"])
 def current_queue():
-    if len(songs) == 0:
+    if len(songs.data) == 0:
         return "No songs in queue."
     resp_list = []
-    for i, song in enumerate(list(songs)):
-        resp_list.append({'id': str(i), 'title': song.song_id})
+    for i, song in enumerate(list(songs.data)):
+        resp_list.append({'id': str(i), 'title': song})
     response = make_response(
         jsonify(
             {
@@ -126,12 +115,11 @@ if __name__ == '__main__':
     spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID,clientSecret,redirectURI, scope = scope ))
 
     # Start our playlist with owner music
-    saved_tracks = spotifyObject.current_user_saved_tracks()
+    saved_tracks = spotifyObject.current_user_saved_tracks(limit=2)
     for item in saved_tracks['items']:
         song_uri = item['track']['uri']
-        song = Song(song_uri)
-        songs.add(song)
-        owners_songs.add(song)
+        songs.append(song_uri)
+        owners_songs.append(song_uri)
 
     # Disallow the owner from reconnecting
     user = spotifyObject.current_user()
