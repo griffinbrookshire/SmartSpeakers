@@ -2,14 +2,11 @@ import React from "react";
 import { useEffect, useState } from "react";
 import * as WebBrowser from 'expo-web-browser';
 import { ResponseType, useAuthRequest } from 'expo-auth-session';
+import { SocialIcon } from 'react-native-elements';
 import {
   Text,
   View,
-  Image,
-  TextInput,
   TouchableOpacity,
-  Platform,
-  Alert,
 } from "react-native";
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
@@ -24,16 +21,15 @@ const discovery = {
 
 export const LoginScreen = ({ navigation }) => {
 
-  const [token, setToken] = useState("");
-
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
       clientId: config.SPOTIFY_CLIENT_ID,
-      scopes: ['user-read-playback-state', 'user-read-currently-playing',
-               'user-follow-read', 'user-read-recently-played', 'user-top-read',
-               'playlist-read-collaborative', 'playlist-read-private', 'user-read-email',
-               'user-read-private', 'user-library-read'],
+      scope: ["user-library-read", "user-read-currently-playing", "playlist-read-collaborative"],
+      // scopes: ['user-read-playback-state', 'user-read-currently-playing',
+      //          'user-follow-read', 'user-read-recently-played', 'user-top-read',
+      //          'playlist-read-collaborative', 'playlist-read-private', 'user-read-email',
+      //          'user-read-private', 'user-library-read'],
       // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
       // this must be set to false
       usePKCE: false,
@@ -45,8 +41,7 @@ export const LoginScreen = ({ navigation }) => {
   useEffect(() => {
     if (response?.type === 'success') {
       if (response.params.access_token) {
-        setToken(response.params.access_token);
-        navigation.navigate('TabNavigation', { screen: 'Queue' });
+        navigation.navigate('TabNavigation', { screen: 'Queue', params: { token: response.params.access_token } });
       } else {
         console.log("in use effect")
         console.log(response)
@@ -58,46 +53,12 @@ export const LoginScreen = ({ navigation }) => {
     promptAsync({useProxy: true})
   }
 
-  function printToken() {
-    console.log(token);
-  }
-
-  function getUser() {
-    console.log('getting user...')
-    console.log(`using token: ${token}`)
-    const options = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${token}`
-      },
-    };
-    console.log(options);
-    fetch(`http://api.spotify.com/me`, options)
-      .then(async response => {
-        console.log('success...');
-        const isJson = response.headers.get('content-type')?.includes('application/json');
-        const data = isJson && await response.json();
-        console.log(data);
-        // navigation.navigate('TabNavigation', 
-        //   { screen: 'HomeStack', params:
-        //   { screen: 'Home', params: { email: data['email'], fname: data['fname'], lname: data['lname'], authToken: data['authToken'] }
-        // }});
-      })
-      .catch(error => {
-        console.log('error...')
-        console.log(error)
-      });
-  }
-
   return (
-    <View style={styles.container}>
+    <View style={styles.loginContainer}>
       <Text style={styles.titleText}>SmartSpeakers</Text>
       <TouchableOpacity style={styles.loginButton} onPress={() => login()}>
+        <SocialIcon type='spotify' style={styles.spotifyIconLogin} iconSize={45}/>
         <Text>Sign In</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.loginButton} onPress={() => getUser()}>
-        <Text>Get User</Text>
       </TouchableOpacity>
     </View>
   );

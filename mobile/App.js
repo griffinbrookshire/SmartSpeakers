@@ -48,18 +48,18 @@ const Tab = createMaterialBottomTabNavigator();
                 initialParams={ props.route.params }
                 options={{
                   tabBarIcon: ({ color }) => (
-                    <Icon name='car' size={24} color={color} />
+                    <Icon name='playlist-music' size={24} color={color} />
                   ),
                   tabBarLabel: 'Queue'
                 }}
               />
               <Tab.Screen
-                name="RideHistory"
+                name="Music"
                 component={MusicScreen}
                 initialParams={ props.route.params }
                 options={{
                   tabBarIcon: ({ color }) => (
-                    <Icon name='history' size={24} color={color} />
+                    <Icon name='spotify' size={24} color={color} />
                   ),
                   tabBarLabel: 'Your Music'
                 }}

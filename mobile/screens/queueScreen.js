@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   FlatList,
 } from "react-native";
-// import { Icon } from 'react-native-elements'
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
 import { Song } from '../components/song.js';
@@ -13,9 +12,16 @@ import { Song } from '../components/song.js';
 const HOST = config.SERVER_IP;
 const PORT = config.SERVER_PORT;
 
+var SpotifyWebApi = require('spotify-web-api-node');
+var spotifyApi = new SpotifyWebApi({
+  clientId: config.SPOTIFY_CLIENT_ID,
+  clientSecret: config.SPOTIFY_CLIENT_SECRET,
+  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+});
+
 /**
- * The Ride History screen
- * @returns The Ride History screen
+ * The Current Queue screen
+ * @returns The Current Queue screen
  */
 export const QueueScreen = ({navigation, route}) => {
 
@@ -24,15 +30,38 @@ export const QueueScreen = ({navigation, route}) => {
   // let [params, setParams] = useState(route.params.params.params);
 
   let [queue, setQueue] = useState([]);
-  let [state, setState] = useState({ isFetching: false });
+  let [rawQueue, setRawQueue] = useState([]);
+  let [state, setState] = useState({ isFetching: false, refresh: false });
+  let [token, setToken] = useState(route.params.token);
+  spotifyApi.setAccessToken(token);
 
-  // const [authToken, setAuthToken] = useState(params.authToken);
+  const getSong = async (song, index) => {
+    const id = song.title.substring('spotify:track:'.length)
+    var item = {
+      id: song.title,
+      title: '',
+      artist: '',
+      // Default imageUrl from random page on Google Images - might break
+      imageUrl: 'https://files.radio.co/humorous-skink/staging/default-artwork.png',
+    }
+    spotifyApi.getTrack(id).then(
+      function(data) {
+        if (data.body.album.images && data.body.album.images.length > 0) {
+          item.imageUrl = data.body.album.images[0].url;
+        }
+        item.title = data.body.name;
+        item.artist = data.body.artists[0].name
+        queue[index] = item;
+      },
+      function(err) {
+        console.error(err);
+      }
+    )
+  };
 
   const getQueue = async () => {
-    const options = {
-      method: 'GET'
-    };
-    fetch(`http://${HOST}:${PORT}/current_queue`, options)
+    setState({ isFetching: true, refresh: state.refresh });
+    fetch(`http://${HOST}:${PORT}/current_queue`, {method: 'GET'})
       .then(async response => {
         const isJson = response.headers.get('content-type')?.includes('application/json');
         const data = isJson && await response.json();
@@ -44,9 +73,22 @@ export const QueueScreen = ({navigation, route}) => {
             return Promise.reject(error);
         }
         if (data.songs) {
-          console.log(data);
-          setQueue(data.songs);
-          setState({ isFetching: false });
+
+          // Safe guard against making a bunch of API calls
+          if (rawQueue.length !== 0 && !hasQueueChanged(data.songs)) {
+            console.log('Not refreshing because no update to queue.');
+            setState({ isFetching: false, refresh: state.refresh });
+            return;
+          }
+
+          setRawQueue(data.songs);
+          data.songs.forEach(getSong);
+
+          // Yes, I know this is cheating... I just couldn't deal with JavaScripts promises/await/async bs
+          setTimeout(function(){ 
+            setState({ isFetching: false, refresh: !state.refresh });
+          }, 800);
+          
         }
       })
       .catch(error => {
@@ -55,14 +97,20 @@ export const QueueScreen = ({navigation, route}) => {
       });
   };
 
+  function hasQueueChanged(incomingQueue) {
+    for (var i=0; i<rawQueue.length; i++) {
+      if (rawQueue[i].title !== incomingQueue[i].title) {
+        return true
+      }
+    }
+    return false
+  }
+
   useEffect(() => {
     getQueue();
   }, []);
 
-  
-
   function onRefresh() {
-    setState({ isFetching: true });
     getQueue();
   }
 
@@ -70,6 +118,9 @@ export const QueueScreen = ({navigation, route}) => {
     <Song
       id={item.id}
       title={item.title}
+      artist={item.artist}
+      imageUrl={item.imageUrl}
+      needsButton={false}
      />
   );
 
@@ -86,7 +137,7 @@ export const QueueScreen = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={styles.ridesContainer}>
+    <SafeAreaView style={styles.tabsContainer}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Queue</Text>
       </View>
@@ -97,6 +148,7 @@ export const QueueScreen = ({navigation, route}) => {
         onRefresh={() => onRefresh()}
         refreshing={state.isFetching}
         ItemSeparatorComponent = { FlatListItemSeparator }
+        extraData={state.refresh}
       />
     </SafeAreaView>
   );

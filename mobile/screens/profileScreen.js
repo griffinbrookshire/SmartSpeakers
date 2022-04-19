@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from "react";
 import {
   Text,
   View,
-  TouchableOpacity,
-  Alert,
-  Image,
   SafeAreaView,
-  TextInput,
+  TouchableOpacity,
+  Image,
+  Alert,
+  Linking,
 } from "react-native";
 import { Icon } from 'react-native-elements';
-// import config from '../config.json';
+import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
 
-// const HOST = config.VNC_HOST;
-// const PORT = config.VNC_PORT;
+var SpotifyWebApi = require('spotify-web-api-node');
+var spotifyApi = new SpotifyWebApi({
+  clientId: config.SPOTIFY_CLIENT_ID,
+  clientSecret: config.SPOTIFY_CLIENT_SECRET,
+  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+});
 
 /**
  * The Profile screen
@@ -21,283 +25,76 @@ import { styles } from '../stylesheets/styles.js';
  */
 export const ProfileScreen = ({navigation, route}) => {
 
-  // React Native removed an easy way to get params from parent screens {navigation.getParent().getParams()}
-  // So this is what were working with now :(
-  // let [params, setParams] = useState(route.params.params.params);
+  let [token, setToken] = useState(route.params.params.token);
+  let [profilePicUrl, setProfilePicUrl] = useState('');
+  let [displayName, setDisplayName] = useState('Full Name');
+  let [profileLink, setProfileLink] = useState('');
+  spotifyApi.setAccessToken(token);
 
-  // Google users get this param set
-  // const isGoogleUser = params.photoUrl ? true : false
+  useEffect(() => {
+    getUser();
+  }, []);
 
-  // const [email, setEmail] = useState(params.email);
-  // const [firstName, setFirstName] = useState(params.fname);
-  // const [lastName, setLastName] = useState(params.lname);
-  // const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
-  // const [authToken, setAuthToken] = useState(params.authToken);
+  function userIconComponent() {
+    return (
+      profilePicUrl.length > 0 ? 
+      <Image style={styles.userIcon} source={{uri: profilePicUrl}}/> :
+      <Icon name='user-circle' type='font-awesome' size = {100}/>
+    );
+  };
 
-  // function revokeToken(navigation) {
-  //   const options = {
-  //     method: 'DELETE',
-  //     headers: {
-  //         "Authorization": `Bearer ${authToken}`
-  //     }
-  //   };
-  //   fetch(`http://${HOST}:${PORT}/signOut`, options)
-  //     .then(async response => {
-  //       const isJson = response.headers.get('content-type')?.includes('application/json');
-  //       const data = isJson && await response.json();
+  function signOut() {
+    Alert.alert(
+        "Confirmation",
+        "Are you sure you want to sign out?",
+        [
+          {text: "No", onPress: () => console.log('Dont logout')},
+          {text: "Yes", onPress: () => navigation.navigate('Login')}
+        ]
+    );
+  };
 
-  //       // check for error response
-  //       if (!response.ok) {
-  //           // get error message from body or default to response status
-  //           const error = (data && data.message) || response.status;
-  //           return Promise.reject(error);
-  //       }
-  //       navigation.navigate('Login');
-  //     })
-  //     .catch(error => {
-  //         console.log('Failed to revoke token (Might be expired or user didn\'t exist)');
-  //         navigation.navigate('Login');
-  //     });
-  // }
+  function getUser() {
+    // Get the authenticated user
+    spotifyApi.getMe()
+    .then(function(data) {
+      setDisplayName(data.body.display_name);
+      setProfileLink(data.body.external_urls.spotify);
+      if (data.body.images.length > 0) {
+        setProfilePicUrl(data.body.images[0].url);
+      }
+    }, function(err) {
+      console.log('Something went wrong!', err);
+    });
+  };
 
-  // function signOut(navigation) {
-  //   Alert.alert(
-  //       "Confirmation",
-  //       "Are you sure you want to sign out?",
-  //       [
-  //         {text: "No", onPress: () => console.log("No Pressed")},
-  //         {text: "Yes", onPress: () => revokeToken(navigation)}
-  //       ]
-  //   );
-  // };
-
-  // function userIconComponent() {
-  //   return (
-  //     isGoogleUser ? 
-  //     <Image source={{uri: params.photoUrl}} style={styles.userIcon}/> : 
-  //     <Icon name='user-circle' type='font-awesome' size = {80}/>
-  //   );
-  // };
-
-  // function getPasswordFields() {
-  //   return (
-  //     isGoogleUser ? 
-  //     null : 
-  //     <View>
-  //       <View style={styles.userProfileField}>
-
-  //             <View style={styles.userProfileLabelTextContainer}>
-  //               <Text style={styles.userProfileLabelText}>Password</Text>
-  //             </View>
-
-  //             <View style={styles.userProfileTextInput}>
-  //               <TextInput
-  //                 style={styles.TextInput}
-  //                 placeholder="Password"
-  //                 placeholderTextColor="#003f5c"
-  //                 secureTextEntry={true}
-  //                 onChangeText={(password) => setPassword(password)}
-  //                 value={password}
-  //                 autoCapitalize="none"
-  //               />
-  //             </View>
-
-  //           </View>
-
-  //           <View style={styles.userProfileField}>
-
-  //             <View style={styles.userProfileLabelTextContainer}>
-  //               <Text style={styles.userProfileLabelText}>Confirm Password</Text>
-  //             </View>
-
-  //             <View style={styles.userProfileTextInput}>
-  //               <TextInput
-  //                 style={styles.TextInput}
-  //                 placeholder="Confirm Password"
-  //                 placeholderTextColor="#003f5c"
-  //                 secureTextEntry={true}
-  //                 onChangeText={(confirmPassword) => setConfirmPassword(confirmPassword)}
-  //                 value={confirmPassword}
-  //                 autoCapitalize="none"
-  //               />
-  //             </View>
-
-  //           </View>
-  //         </View>
-  //   );
-  // };
-
-  // const updateUser = async () => {
-  //   if (firstName === '' || lastName === '' || email === '') {
-  //     Alert.alert(
-  //       "Oops!",
-  //       "Please fill in all fields",
-  //       [
-  //         {text: "OK", onPress: () => console.log("OK Pressed")}
-  //       ]
-  //     );
-  //   } else if (password !== confirmPassword) {
-  //     Alert.alert(
-  //       "Oops!",
-  //       "Passwords do not match",
-  //       [
-  //         {text: "OK", onPress: () => console.log("OK Pressed")}
-  //       ]
-  //     );
-  //   } else {
-  //     var user = { oldEmail: params.email, email: email, fname: firstName, lname: lastName, password: password };
-  //     const options = {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         "Authorization": `Bearer ${authToken}`
-  //       },
-  //       body: JSON.stringify(user)
-  //     };
-
-  //     fetch(`http://${HOST}:${PORT}/updateUser`, options)
-  //       .then(async response => {
-  //         const isJson = response.headers.get('content-type')?.includes('application/json');
-  //         const data = isJson && await response.json();
-
-  //         // check for error response
-  //         if (!response.ok) {
-  //             // get error message from body or default to response status
-  //             const error = (data && data.message) || response.status;
-  //             return Promise.reject(error);
-  //         };
-
-  //         // route.params.params.params.email = user.email;
-  //         // route.params.params.params.fname = user.fname;
-  //         // route.params.params.params.lname = user.lname;
-  //         // setParams(route.params.params.params);
-
-  //         Alert.alert(
-  //           "Congrats!",
-  //           "Your profile has been updated successfully",
-  //           [
-  //             {text: "OK", onPress: () => console.log("OK Pressed")}
-  //           ]
-  //         );
-
-  //         setPassword('');
-  //         setConfirmPassword('');
-
-  //       })
-  //       .catch(error => {
-  //         Alert.alert(
-  //           "Oops!",
-  //           "There was an error updating your profile",
-  //           [
-  //             {text: "OK", onPress: () => console.log("OK Pressed")}
-  //           ]
-  //         );
-  //         console.log(error);
-  //       });
-  //   };
-  // };
+  function openSpotifyAccount() {
+    Linking.canOpenURL(profileLink).then(supported => {
+      if (supported) {
+        Linking.openURL(profileLink);
+      } else {
+        console.log("Don't know how to open URI: " + profileLink);
+      }
+    });
+  }
 
   return (
-    <SafeAreaView styles={styles.container}>
-      <Text>Profile</Text>
-
-      {/* <View style={styles.titleContainer}>
+    <SafeAreaView style={styles.tabsContainer}>
+      <View style={styles.titleContainer}>
         <Text style={styles.title}>Profile</Text>
       </View>
-
       <TouchableOpacity style={styles.signoutBtn} onPress={() =>
-        signOut(navigation)}>
+        signOut()}>
         <Text style={styles.signoutBtnText}>Sign Out</Text>
       </TouchableOpacity>
-
-      <View style={styles.userProfileContainer}>
-
-        <View style={styles.userProfileIconContainer}>{userIconComponent()}</View>
-
-        <View>
-
-          <View style={styles.userProfileField}>
-
-            <View style={styles.userProfileLabelTextContainer}>
-              <Text style={styles.userProfileLabelText}>Email</Text>
-            </View>
-
-            <View style={isGoogleUser ?
-              [styles.userProfileTextInput, {backgroundColor: 'rgba(186, 186, 186, 1.0)'}] :
-               styles.userProfileTextInput}>
-              <TextInput
-                style={styles.TextInput}
-                placeholder="Email"
-                placeholderTextColor="#003f5c"
-                onChangeText={(email) => setEmail(email)}
-                value={email}
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect={false}
-                editable={isGoogleUser ? false : true}
-              />
-            </View>
-
-          </View>
-
-          <View style={styles.userProfileField}>
-
-            <View style={styles.userProfileLabelTextContainer}>
-              <Text style={styles.userProfileLabelText}>First Name</Text>
-            </View>
-
-            <View style={styles.userProfileTextInput}>
-              <TextInput
-                style={styles.TextInput}
-                placeholder="First Name"
-                placeholderTextColor="#003f5c"
-                onChangeText={(firstName) => setFirstName(firstName)}
-                value={firstName}
-                autoCapitalize="words"
-                autoComplete="off"
-                autoCorrect={false}
-              />
-            </View>
-
-          </View>
-
-          <View style={styles.userProfileField}>
-
-            <View style={styles.userProfileLabelTextContainer}>
-              <Text style={styles.userProfileLabelText}>Last Name</Text>
-            </View>
-
-            <View style={styles.userProfileTextInput}>
-              <TextInput
-                style={styles.TextInput}
-                placeholder="Last Name"
-                placeholderTextColor="#003f5c"
-                onChangeText={(lastName) => setLastName(lastName)}
-                value={lastName}
-                autoCapitalize="words"
-                autoComplete="off"
-                autoCorrect={false}
-              />
-            </View>
-
-          </View>
-
-          {getPasswordFields()}
-
-          <View style={styles.saveButtonContainer}>
-
-            <TouchableOpacity style={styles.saveButton} onPress={() => updateUser()}>
-              <Text style={styles.signoutBtnText}>Save</Text>
-            </TouchableOpacity>
-
-          </View>
-
-        </View>
-
-      </View> */}
-
+      <View style={styles.userInfoView}>
+        <View styles={styles.userIconView}>{userIconComponent()}</View>
+        <Text style={styles.displayNameText}>{displayName}</Text>
+        <TouchableOpacity style={styles.profileBtn} onPress={() =>
+          openSpotifyAccount()}>
+          <Text style={styles.signoutBtnText}>Your Spotify Profile</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
-
   );
 };
