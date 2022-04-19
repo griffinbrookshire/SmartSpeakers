@@ -27,7 +27,7 @@ export const ProfileScreen = ({navigation, route}) => {
 
   let [token, setToken] = useState(route.params.params.token);
   let [profilePicUrl, setProfilePicUrl] = useState('');
-  let [displayName, setDisplayName] = useState('Full Name');
+  let [displayName, setDisplayName] = useState('');
   let [profileLink, setProfileLink] = useState('');
   spotifyApi.setAccessToken(token);
 

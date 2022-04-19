@@ -35,11 +35,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(30,215,96,1.0)",
   },
 
-  loginButtonText: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
   titleContainer: {
     marginTop: 20,
     marginBottom: 10,

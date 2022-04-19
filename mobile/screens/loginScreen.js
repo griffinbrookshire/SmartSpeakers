@@ -26,12 +26,6 @@ export const LoginScreen = ({ navigation }) => {
       responseType: ResponseType.Token,
       clientId: config.SPOTIFY_CLIENT_ID,
       scope: ["user-library-read", "user-read-currently-playing", "playlist-read-collaborative"],
-      // scopes: ['user-read-playback-state', 'user-read-currently-playing',
-      //          'user-follow-read', 'user-read-recently-played', 'user-top-read',
-      //          'playlist-read-collaborative', 'playlist-read-private', 'user-read-email',
-      //          'user-read-private', 'user-library-read'],
-      // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
-      // this must be set to false
       usePKCE: false,
       redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
     },
@@ -43,7 +37,7 @@ export const LoginScreen = ({ navigation }) => {
       if (response.params.access_token) {
         navigation.navigate('TabNavigation', { screen: 'Queue', params: { token: response.params.access_token } });
       } else {
-        console.log("in use effect")
+        console.log("No token yet")
         console.log(response)
       }
     }
