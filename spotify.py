@@ -101,6 +101,32 @@ def current_queue():
     )
     return response
 
+'''
+Add a song to the queue
+'''
+@app.route('/current_queue', methods=["POST"])
+def current_queue_post():
+    global songs
+
+    queued_song = request.get_json().get('id')
+    new_set = BaseMultiSet()
+    new_set.append(queued_song)
+
+    intersect = songs.intersection(new_set)
+
+    if len(intersect.data) == 0:
+        songs = songs.union(new_set)
+        message = 'Song queued successfully!'
+    else:
+        message = 'Song was already in the queue.'
+
+    response = make_response(
+        jsonify(
+            {'status': '200', 'message': message}
+            )
+    )
+    return response
+
 if __name__ == '__main__':
     # cli args
     parser = argparse.ArgumentParser(description = 'Main service command parser')

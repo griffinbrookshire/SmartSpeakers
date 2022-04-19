@@ -98,6 +98,10 @@ export const QueueScreen = ({navigation, route}) => {
   };
 
   function hasQueueChanged(incomingQueue) {
+    // If lengths are different, then the queue has been updated
+    if (rawQueue.length !== incomingQueue.length) { return true }
+
+    // If lengths are the same, then check if songs are still the same
     for (var i=0; i<rawQueue.length; i++) {
       if (rawQueue[i].title !== incomingQueue[i].title) {
         return true
