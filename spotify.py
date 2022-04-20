@@ -36,7 +36,6 @@ expects request body in form
 {
     'id': 'sample_id', 
     'priority': 0 or 1
-    'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
 }
 '''
 @app.route('/new_user', methods=["POST"])
@@ -44,21 +43,9 @@ def new_user():
     global songs
     new_user_priority = request.get_json().get('priority')
     new_user_id = request.get_json().get('id')
-    new_user_songs = request.get_json().get('songs')
-    if not new_user_id in subscribed_users and not new_user_id == None:
-        subscribed_users.append(new_user_id)
-        users_priority[new_user_id] = new_user_priority
-        new_set = BaseMultiSet()
-        for song in new_user_songs:
-            new_set.append(song)
-        if new_user_priority == 2:
-            new_set = new_set.union(new_set)
-        temp_songs = owners_songs.intersection(new_set)
-        songs = temp_songs.union(songs)
-        songs.show()
-        return "Connected Successfully"
-    
-    return "A Problem Occurred"
+    subscribed_users.append(new_user_id)
+    users_priority[new_user_id] = new_user_priority
+    return 'User ' + new_user_id + ' signed up'
 
 '''
 speaker code will make a request to get Spotify URI for next song to play
@@ -107,18 +94,19 @@ Add a song to the queue
 @app.route('/current_queue', methods=["POST"])
 def current_queue_post():
     global songs
-
+    user_id = request.get_json().get('user_id')
+    priority = users_priority[user_id]
     queued_song = request.get_json().get('id')
     new_set = BaseMultiSet()
     new_set.append(queued_song)
-
+    if not priority == 0:
+        new_set.append(queued_song)
     intersect = songs.intersection(new_set)
-
-    if len(intersect.data) == 0:
+    if not intersect.length() == 0:
         songs = songs.union(new_set)
         message = 'Song queued successfully!'
     else:
-        message = 'Song was already in the queue.'
+        message = 'Error'
 
     response = make_response(
         jsonify(
