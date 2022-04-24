@@ -12,9 +12,12 @@ def update_song():
     title = request.get_json().get('title')
     artist = request.get_json().get('artist')
     print(title + " " + artist)
-    turbo.push(turbo.update(render_template('index.html', title, artist)))
+    turbo.push(turbo.update(render_template('index.html', title = title,  artist = artist)))
     return 'success'
 
+@app.route('/')
+def root():
+    return render_template(render_template('index.html', title = 'Not Playing' ,  artist = 'Not Playing'))
 
 if __name__ == '__main__':
     app.run(debug=False, host="0.0.0.0")
