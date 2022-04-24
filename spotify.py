@@ -115,6 +115,33 @@ def current_queue_post():
     )
     return response
 
+'''
+Yield current playing song id
+'''
+@app.route('/currently_playing', methods=["GET"])
+def currently_playing():
+    current_song = spotifyObject.currently_playing()
+    try:
+        uri = current_song['item']['uri']
+        image_url = current_song['item']['album']['images'][0]['url']
+        response = make_response(
+        jsonify(
+            {
+                'song_uri': uri,
+                'image_url': image_url}
+            )
+        )
+        return response
+    except:
+        response = make_response(
+        jsonify(
+            {
+                'song_uri': None,
+                'image_url': None}
+            )
+        )
+        return response
+
 if __name__ == '__main__':
     # cli args
     parser = argparse.ArgumentParser(description = 'Main service command parser')
