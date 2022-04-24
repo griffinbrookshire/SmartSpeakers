@@ -17,7 +17,7 @@ def update_song():
 
 @app.route('/')
 def root():
-    return render_template(render_template('index.html', title = 'Not Playing' ,  artist = 'Not Playing'))
+    return render_template('index.html', title = 'Not Playing', artist = "----")
 
 if __name__ == '__main__':
     app.run(debug=False, host="0.0.0.0")
