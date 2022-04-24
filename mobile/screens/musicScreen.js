@@ -25,6 +25,7 @@ export const MusicScreen = ({navigation, route}) => {
 	let [music, setMusic] = useState([]);
 	let [state, setState] = useState({ isFetching: false, refresh: false });
 	let [token, setToken] = useState(route.params.params.token);
+	let [username, setUsername] = useState(route.params.params.username);
 	spotifyApi.setAccessToken(token);
 
 	function getSong(song, index) {
@@ -72,6 +73,7 @@ export const MusicScreen = ({navigation, route}) => {
 			artist={item.artist}
 			imageUrl={item.imageUrl}
 			needsButton={true}
+			username={username}
 			/>
 	);
 	

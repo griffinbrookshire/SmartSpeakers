@@ -11,7 +11,7 @@ import config from '../config.json';
 const HOST = config.SERVER_IP;
 const PORT = config.SERVER_PORT;
 
-export const Song = ({ id, title, artist, imageUrl, needsButton }) => {
+export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => {
 
   function addToQueue() {
     Alert.alert(
@@ -28,7 +28,7 @@ export const Song = ({ id, title, artist, imageUrl, needsButton }) => {
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: id})
+      body: JSON.stringify({id: id, user_id: username})
     };
     fetch(`http://${HOST}:${PORT}/current_queue`, options)
       .then(async response => {

@@ -95,18 +95,18 @@ Add a song to the queue
 def current_queue_post():
     global songs
     user_id = request.get_json().get('user_id')
-    priority = users_priority[user_id]
+    priority = int(users_priority[user_id])
     queued_song = request.get_json().get('id')
     new_set = BaseMultiSet()
     new_set.append(queued_song)
     if not priority == 0:
         new_set.append(queued_song)
-    intersect = songs.intersection(new_set)
-    if not intersect.length() == 0:
-        songs = songs.union(new_set)
-        message = 'Song queued successfully!'
-    else:
-        message = 'Error'
+    # intersect = songs.intersection(new_set)
+    # if not intersect.length() == 0:
+    songs = songs.union(new_set)
+    message = 'Song queued successfully!'
+    # else:
+        # message = 'Error'
 
     response = make_response(
         jsonify(

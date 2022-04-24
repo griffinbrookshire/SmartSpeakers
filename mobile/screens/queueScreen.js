@@ -25,10 +25,6 @@ var spotifyApi = new SpotifyWebApi({
  */
 export const QueueScreen = ({navigation, route}) => {
 
-  // React Native removed an easy way to get params from parent screens {navigation.getParent().getParams()}
-  // So this is what were working with now :(
-  // let [params, setParams] = useState(route.params.params.params);
-
   let [queue, setQueue] = useState([]);
   let [rawQueue, setRawQueue] = useState([]);
   let [state, setState] = useState({ isFetching: false, refresh: false });
@@ -36,15 +32,16 @@ export const QueueScreen = ({navigation, route}) => {
   spotifyApi.setAccessToken(token);
 
   const getSong = async (song, index) => {
-    const id = song.title.substring('spotify:track:'.length)
+    const song_id = song.title.substring('spotify:track:'.length)
+    const id = Math.floor(Math.random() * 1000000)
     var item = {
-      id: song.title,
+      id: id,
       title: '',
       artist: '',
       // Default imageUrl from random page on Google Images - might break
       imageUrl: 'https://files.radio.co/humorous-skink/staging/default-artwork.png',
     }
-    spotifyApi.getTrack(id).then(
+    spotifyApi.getTrack(song_id).then(
       function(data) {
         if (data.body.album.images && data.body.album.images.length > 0) {
           item.imageUrl = data.body.album.images[0].url;

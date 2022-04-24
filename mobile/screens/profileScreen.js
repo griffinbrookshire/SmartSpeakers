@@ -26,6 +26,7 @@ var spotifyApi = new SpotifyWebApi({
 export const ProfileScreen = ({navigation, route}) => {
 
   let [token, setToken] = useState(route.params.params.token);
+  let [priority, setPriority] = useState(route.params.params.priority);
   let [profilePicUrl, setProfilePicUrl] = useState('');
   let [displayName, setDisplayName] = useState('');
   let [profileLink, setProfileLink] = useState('');
@@ -90,6 +91,7 @@ export const ProfileScreen = ({navigation, route}) => {
       <View style={styles.userInfoView}>
         <View styles={styles.userIconView}>{userIconComponent()}</View>
         <Text style={styles.displayNameText}>{displayName}</Text>
+        <Text style={{marginTop: 10, fontSize: 18}}>{ priority === 0 ? "Free User" : "Paid User"}</Text>
         <TouchableOpacity style={styles.profileBtn} onPress={() =>
           openSpotifyAccount()}>
           <Text style={styles.signoutBtnText}>Your Spotify Profile</Text>
