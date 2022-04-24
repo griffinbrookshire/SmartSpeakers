@@ -129,7 +129,7 @@ if __name__ == '__main__':
     spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID,clientSecret,redirectURI, scope = scope ))
 
     # Start our playlist with owner music
-    saved_tracks = spotifyObject.current_user_saved_tracks(limit=2)
+    saved_tracks = spotifyObject.current_user_saved_tracks(limit=5)
     for item in saved_tracks['items']:
         song_uri = item['track']['uri']
         songs.append(song_uri)
