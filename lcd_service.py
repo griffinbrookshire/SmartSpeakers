@@ -4,8 +4,8 @@ import datetime
 app = Flask(__name__)
 turbo = Turbo(app)
 
-title = None
-artist = None
+title = 'Not Playing'
+artist = '----'
 
 @app.route('/update_song', methods=["POST"])
 def update_song():
@@ -18,7 +18,6 @@ def update_song():
 
 @app.route('/')
 def root():
-    
     return render_template('index.html', title = title, artist = artist)
 
 if __name__ == '__main__':
