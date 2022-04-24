@@ -2,10 +2,16 @@
 <html>
 <head>
     <title>Currently Playing</title>
+    {{ turbo() }}
 </head>
 <body>
- <h1>Now Playing:</h1>
- <h2>{{ title }}</h2>
- <h4>{{ artist }}</h4>
+    <div id="content" class="center">
+        <div id="columns" class="center">
+          <div class="box">
+            <h1>Now playing</h1>
+            <div id="data">{% include "data.html" %}</div>
+          </div>
+        </div>
+      </div>
 </body>
 </html>

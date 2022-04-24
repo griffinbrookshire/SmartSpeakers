@@ -13,13 +13,11 @@ def update_song():
     title = request.get_json().get('title')
     artist = request.get_json().get('artist')
     print(title + " " + artist)
-    #turbo.push(turbo.update(render_template('index.html', title = title,  artist = artist)))
-    requests.get('0.0.0.0:5000/')
+    turbo.push(turbo.update(render_template('data.html', title = title, artist = artist), 'data'))
     return 'success'
 
 @app.route('/')
 def root():
-    global title, artist;
     return render_template('index.html', title = title, artist = artist)
 
 if __name__ == '__main__':
