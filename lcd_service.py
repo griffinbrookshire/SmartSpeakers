@@ -4,20 +4,23 @@ import datetime
 app = Flask(__name__)
 turbo = Turbo(app)
 
-title = None
-artist = None
+title = 'Not Playing'
+artist = '----'
 
 @app.route('/update_song', methods=["POST"])
 def update_song():
+    global title, artist
     title = request.get_json().get('title')
     artist = request.get_json().get('artist')
     print(title + " " + artist)
-    turbo.push(turbo.update(render_template('index.html', title = title,  artist = artist)))
+    #turbo.push(turbo.update(render_template('index.html', title = title,  artist = artist)))
+    requests.get('0.0.0.0:5000/')
     return 'success'
 
 @app.route('/')
 def root():
-    return render_template('index.html', title = 'Not Playing', artist = "----")
+    global title, artist;
+    return render_template('index.html', title = title, artist = artist)
 
 if __name__ == '__main__':
     app.run(debug=False, host="0.0.0.0")
