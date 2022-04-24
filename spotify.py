@@ -122,12 +122,14 @@ Yield current playing song id
 def currently_playing():
     current_song = spotifyObject.currently_playing()
     try:
-        uri = current_song['item']['uri']
+        song_name = current_song['item']['name']
+        artist = current_song['item']['artists'][0]['name']
         image_url = current_song['item']['album']['images'][0]['url']
         response = make_response(
         jsonify(
             {
-                'song_uri': uri,
+                'artist': artist,
+                'name': song_name,
                 'image_url': image_url}
             )
         )
@@ -136,7 +138,8 @@ def currently_playing():
         response = make_response(
         jsonify(
             {
-                'song_uri': None,
+                'artist': None,
+                'name': None,
                 'image_url': None}
             )
         )
