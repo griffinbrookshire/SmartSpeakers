@@ -1,5 +1,14 @@
 import requests
 
+url = 'http://0.0.0.0:5000/update_song'
+data = {
+    'image_url': 'https://i.scdn.co/image/ab67616d0000b2730f8975afd519403248e96725',
+    'artist': 'DaBaby',
+    'title': 'Bestie'
+}
+r = requests.post(url, json=data)
+
+
 input("Query Current Queue")
 url = 'http://0.0.0.0:5000/current_queue'
 r = requests.get(url)
