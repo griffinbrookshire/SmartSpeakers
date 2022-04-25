@@ -14,8 +14,8 @@ let interval;
 
 export const NowPlaying = () => {
 
-  let [title, setTitle] = useState('Loading...');
-  let [artist, setArtist] = useState('Loading...');
+  let [title, setTitle] = useState('Not Playing');
+  let [artist, setArtist] = useState('----');
   let [imageUrl, setImageUrl] = useState('https://files.radio.co/humorous-skink/staging/default-artwork.png')
 
   function getCurrentlyPlaying() {
@@ -52,8 +52,8 @@ export const NowPlaying = () => {
   return(
     <View style={styles.nowPlayingView}>
       <Song
-        title={title ? title : 'Loading...'}
-        artist={artist ? artist : 'Loading...'}
+        title={title}
+        artist={artist}
         imageUrl={imageUrl}
       />
     </View>
