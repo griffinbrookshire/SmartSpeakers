@@ -61,10 +61,12 @@ def get_song():
     track = spotifyObject.track(element)
     track_name = track.get('name')
     artist_name = track.get('artists')[0].get('name')
+    image_url = track['album']['images'][0]['url']
     lcd_url_route = 'http://' + args.address + ":" + args.port + route
     song_data = {
         'artist': artist_name, 
-        'title': track_name
+        'title': track_name,
+        'image_url': image_url
     }
     r = requests.post(lcd_url_route, json = song_data)
     return str(element)

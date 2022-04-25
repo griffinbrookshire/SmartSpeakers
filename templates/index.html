@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currently Playing</title>
+    {{ turbo() }}
+</head>
+<body>
+    <div id="content" class="center">
+        <div id="columns" class="center">
+          <div class="box">
+            <h1>Now playing</h1>
+            <div id="data">{% include "data.html" %}</div>
+          </div>
+        </div>
+      </div>
+</body>
+</html>
