@@ -104,7 +104,7 @@ def current_queue_post():
     # intersect = songs.intersection(new_set)
     # if not intersect.length() == 0:
     songs = songs.union(new_set)
-    message = 'Song queued successfully!'
+    message = 'Song added successfully!'
     # else:
         # message = 'Error'
 

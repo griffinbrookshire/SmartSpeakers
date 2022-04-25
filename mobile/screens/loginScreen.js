@@ -79,7 +79,7 @@ export const LoginScreen = ({ navigation }) => {
                 navigation.navigate('TabNavigation', { screen: 'Queue', params: { token: access_token, username: username, priority: priority } });
               })
               .catch(error => {
-                  console.error('There was an error adding song to queue.');
+                  console.error('There was an error adding song to playlist.');
                   console.error(error)
               });
           },

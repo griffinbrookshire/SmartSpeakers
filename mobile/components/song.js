@@ -15,8 +15,8 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
 
   function addToQueue() {
     Alert.alert(
-      "Add to Queue",
-      `Add \'${title}\' to the queue?`,
+      "Add to Playlist",
+      `Add \'${title}\' to the playlist?`,
       [
         {text: "No", onPress: () => console.log('Sike, you thought')},
         {text: "Yes", onPress: () => postSongToQueue()}
@@ -43,7 +43,7 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
         }
 
         Alert.alert(
-          "Queue Result",
+          "Song Request Result",
           data.message,
           [
             {text: "OK"}
@@ -52,7 +52,7 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
 
       })
       .catch(error => {
-          console.error('There was an error adding song to queue.');
+          console.error('There was an error adding song to playlist.');
           console.error(error)
       });
   }

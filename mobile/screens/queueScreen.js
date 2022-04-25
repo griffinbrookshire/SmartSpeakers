@@ -31,30 +31,44 @@ export const QueueScreen = ({navigation, route}) => {
   let [token, setToken] = useState(route.params.token);
   spotifyApi.setAccessToken(token);
 
-  const getSong = async (song, index) => {
-    const song_id = song.title.substring('spotify:track:'.length)
-    const id = Math.floor(Math.random() * 1000000)
+  const addSongToQueue = async (songToQueue) => {
+    const song_id = songToQueue.title.substring('spotify:track:'.length)
     var item = {
-      id: id,
+      id: song_id,
       title: '',
       artist: '',
       // Default imageUrl from random page on Google Images - might break
       imageUrl: 'https://files.radio.co/humorous-skink/staging/default-artwork.png',
     }
     spotifyApi.getTrack(song_id).then(
-      function(data) {
+      async function(data) {
         if (data.body.album.images && data.body.album.images.length > 0) {
           item.imageUrl = data.body.album.images[0].url;
         }
         item.title = data.body.name;
         item.artist = data.body.artists[0].name
-        queue[index] = item;
+        if (!await queueContains(songToQueue)) {
+          queue.push(item);
+        }
       },
       function(err) {
         console.error(err);
       }
     )
   };
+
+  function queueContains(songToQueue) {
+    return new Promise((resolve) => {
+      const songToQueueId = songToQueue.title.substring('spotify:track:'.length)
+      for (var i = 0; i < queue.length; i++) {
+        const songInQueueId = queue[i].id;
+        if (songToQueueId === songInQueueId) {
+          resolve(true);
+        }
+      }
+      resolve(false);
+    })
+  }
 
   const getQueue = async () => {
     setState({ isFetching: true, refresh: state.refresh });
@@ -79,7 +93,7 @@ export const QueueScreen = ({navigation, route}) => {
           }
 
           setRawQueue(data.songs);
-          data.songs.forEach(getSong);
+          data.songs.forEach(addSongToQueue);
 
           // Yes, I know this is cheating... I just couldn't deal with JavaScripts promises/await/async bs
           setTimeout(function(){ 
@@ -140,7 +154,7 @@ export const QueueScreen = ({navigation, route}) => {
   return (
     <SafeAreaView style={styles.tabsContainer}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Queue</Text>
+        <Text style={styles.title}>Playlist</Text>
       </View>
       <FlatList
         data={queue}
