@@ -8,6 +8,7 @@ import {
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
 import { Song } from '../components/song.js';
+import { NowPlaying } from "../components/nowPlaying";
 
 const HOST = config.SERVER_IP;
 const PORT = config.SERVER_PORT;
@@ -165,6 +166,7 @@ export const QueueScreen = ({navigation, route}) => {
         ItemSeparatorComponent = { FlatListItemSeparator }
         extraData={state.refresh}
       />
+      <NowPlaying/>
     </SafeAreaView>
   );
 };

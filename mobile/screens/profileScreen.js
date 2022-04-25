@@ -11,6 +11,7 @@ import {
 import { Icon } from 'react-native-elements';
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
+import { NowPlaying } from "../components/nowPlaying";
 
 var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
@@ -97,6 +98,7 @@ export const ProfileScreen = ({navigation, route}) => {
           <Text style={styles.signoutBtnText}>Your Spotify Profile</Text>
         </TouchableOpacity>
       </View>
+      <NowPlaying/>
     </SafeAreaView>
   );
 };

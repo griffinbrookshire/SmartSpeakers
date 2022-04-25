@@ -8,6 +8,7 @@ import {
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
 import { Song } from '../components/song.js';
+import { NowPlaying } from "../components/nowPlaying";
 
 var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
@@ -103,6 +104,7 @@ export const MusicScreen = ({navigation, route}) => {
 				ItemSeparatorComponent = { FlatListItemSeparator }
 				extraData={state.refresh}
 			/>
+			<NowPlaying/>
 		</SafeAreaView>
 	);
 

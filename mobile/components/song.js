@@ -59,7 +59,7 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
 
   return(
   <View style={styles.itemView}>
-    <Image source={{uri: imageUrl}} style={styles.albumCoverImage}/>
+    <Image source={imageUrl ? {uri: imageUrl} : {uri: 'https://files.radio.co/humorous-skink/staging/default-artwork.png'}} style={styles.albumCoverImage}/>
     <View style={styles.songInfo}>
       <Text>{title.substring(0,42)}</Text>
       <Text>{artist.substring(0,42)}</Text>

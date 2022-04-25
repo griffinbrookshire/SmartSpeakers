@@ -73,6 +73,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     paddingLeft: 10,
     paddingTop: 5,
+    width: "100%"
   },
 
   signoutBtn: {
@@ -121,6 +122,15 @@ export const styles = StyleSheet.create({
   displayNameText: {
     fontSize: 24,
     fontWeight: 'bold',
+  },
+
+  nowPlayingView: {
+    backgroundColor: "rgba(30,215,96,1.0)",
+    borderColor: "black",
+    borderTopWidth: 3,
+    borderBottomWidth: 3,
+    position: "absolute",
+    bottom: 0
   },
 
 });
