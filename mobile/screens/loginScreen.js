@@ -2,17 +2,18 @@ import React from "react";
 import { useEffect, useState } from "react";
 import * as WebBrowser from 'expo-web-browser';
 import { ResponseType, useAuthRequest } from 'expo-auth-session';
+import { SocialIcon } from 'react-native-elements';
 import {
   Text,
   View,
-  Image,
-  TextInput,
   TouchableOpacity,
-  Platform,
-  Alert,
+  Alert
 } from "react-native";
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
+
+const HOST = config.SERVER_IP;
+const PORT = config.SERVER_PORT;
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,33 +23,72 @@ const discovery = {
   tokenEndpoint: 'https://accounts.spotify.com/api/token',
 };
 
-export const LoginScreen = ({ navigation }) => {
+var SpotifyWebApi = require('spotify-web-api-node');
+var spotifyApi = new SpotifyWebApi({
+  clientId: config.SPOTIFY_CLIENT_ID,
+  clientSecret: config.SPOTIFY_CLIENT_SECRET,
+  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+});
 
-  const [token, setToken] = useState("");
+export const LoginScreen = ({ navigation }) => {
 
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
       clientId: config.SPOTIFY_CLIENT_ID,
-      scopes: ['user-read-playback-state', 'user-read-currently-playing',
-               'user-follow-read', 'user-read-recently-played', 'user-top-read',
-               'playlist-read-collaborative', 'playlist-read-private', 'user-read-email',
-               'user-read-private', 'user-library-read'],
-      // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
-      // this must be set to false
+      scope: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-library-modify", "user-follow-read", "playlist-read-private", "playlist-modify-private"],
       usePKCE: false,
       redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
     },
     discovery
   );
 
+  const getPriority = (username) => {
+    return new Promise((resolve) => {
+      Alert.alert(
+        "User Priority",
+        `Is \'${username}\' a free user or a paid user?`,
+        [
+          {text: "Free", onPress: () => resolve(0)},
+          {text: "Paid", onPress: () => resolve(1)},
+        ],
+        { cancelable: false }
+      );
+    })
+  };
+
   useEffect(() => {
     if (response?.type === 'success') {
       if (response.params.access_token) {
-        setToken(response.params.access_token);
-        navigation.navigate('TabNavigation', { screen: 'Queue' });
+        var access_token = response.params.access_token;
+        var priority = -1;
+        spotifyApi.setAccessToken(access_token);
+        spotifyApi.getMe().then(
+          async function(data) {
+            var username = data.body.id;
+            priority = await getPriority(username);
+            const options = {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({id: username, priority: priority})
+            };
+            fetch(`http://${HOST}:${PORT}/new_user`, options)
+              .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+                navigation.navigate('TabNavigation', { screen: 'Queue', params: { token: access_token, username: username, priority: priority } });
+              })
+              .catch(error => {
+                  console.error('There was an error adding song to playlist.');
+                  console.error(error)
+              });
+          },
+          function(err) {
+            console.error(err);
+          }
+        )
       } else {
-        console.log("in use effect")
+        console.log("No token yet")
         console.log(response)
       }
     }
@@ -58,46 +98,12 @@ export const LoginScreen = ({ navigation }) => {
     promptAsync({useProxy: true})
   }
 
-  function printToken() {
-    console.log(token);
-  }
-
-  function getUser() {
-    console.log('getting user...')
-    console.log(`using token: ${token}`)
-    const options = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${token}`
-      },
-    };
-    console.log(options);
-    fetch(`http://api.spotify.com/me`, options)
-      .then(async response => {
-        console.log('success...');
-        const isJson = response.headers.get('content-type')?.includes('application/json');
-        const data = isJson && await response.json();
-        console.log(data);
-        // navigation.navigate('TabNavigation', 
-        //   { screen: 'HomeStack', params:
-        //   { screen: 'Home', params: { email: data['email'], fname: data['fname'], lname: data['lname'], authToken: data['authToken'] }
-        // }});
-      })
-      .catch(error => {
-        console.log('error...')
-        console.log(error)
-      });
-  }
-
   return (
-    <View style={styles.container}>
+    <View style={styles.loginContainer}>
       <Text style={styles.titleText}>SmartSpeakers</Text>
       <TouchableOpacity style={styles.loginButton} onPress={() => login()}>
+        <SocialIcon type='spotify' style={styles.spotifyIconLogin} iconSize={45}/>
         <Text>Sign In</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.loginButton} onPress={() => getUser()}>
-        <Text>Get User</Text>
       </TouchableOpacity>
     </View>
   );

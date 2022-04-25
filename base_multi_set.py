@@ -21,3 +21,5 @@ class BaseMultiSet:
         return element_to_serve
     def show(self):
         print(self.data)
+    def length(self):
+        return len(self.data)

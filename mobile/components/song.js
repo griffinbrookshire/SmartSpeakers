@@ -1,41 +1,69 @@
 import {
   Text,
-  View
+  View,
+  Image,
+  Alert
 } from "react-native";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { styles } from "../stylesheets/styles";
+import config from '../config.json';
 
-export const Song = ({ id, title }) => {
+const HOST = config.SERVER_IP;
+const PORT = config.SERVER_PORT;
+
+export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => {
+
+  function addToQueue() {
+    Alert.alert(
+      "Add to Playlist",
+      `Add \'${title}\' to the playlist?`,
+      [
+        {text: "No", onPress: () => console.log('Sike, you thought')},
+        {text: "Yes", onPress: () => postSongToQueue()}
+      ]
+    );
+  }
+
+  function postSongToQueue() {
+    const options = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: id, user_id: username})
+    };
+    fetch(`http://${HOST}:${PORT}/current_queue`, options)
+      .then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson && await response.json();
+
+        // check for error response
+        if (!response.ok) {
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+        }
+
+        Alert.alert(
+          "Song Request Result",
+          data.message,
+          [
+            {text: "OK"}
+          ]
+        );
+
+      })
+      .catch(error => {
+          console.error('There was an error adding song to playlist.');
+          console.error(error)
+      });
+  }
+
   return(
-  <View>
-    <Text>{id} - {title}</Text>
-    {/* <View style={styles.itemTopRow}>
-      <View style={styles.itemTopRowLeft}>
-        <Text>{day}</Text>
-        <Text>Pickup: {startTime}</Text>
-      </View>
-      <View style={styles.itemTopRowRight}>
-        <Text>{duration} { duration === 1 ? 'minute' : 'minutes'}</Text>
-      </View>
+  <View style={styles.itemView}>
+    <Image source={imageUrl ? {uri: imageUrl} : {uri: 'https://files.radio.co/humorous-skink/staging/default-artwork.png'}} style={styles.albumCoverImage}/>
+    <View style={styles.songInfo}>
+      <Text>{title.substring(0,42)}</Text>
+      <Text>{artist.substring(0,42)}</Text>
     </View>
-    <View style={styles.itemBottomRow}>
-      <View style={styles.itemBottomRowLeft}>
-        <View style={styles.markerView}>
-          <Icon name='location-pin' type='entypo' color='#517fa4' />
-        </View>
-        <View style={styles.nodeTextView}>
-          <Text style={{fontSize: 12}}>{startNode}</Text>
-        </View>
-      </View>
-      <View style={styles.itemBottomRowCenter}>
-        <Icon name='arrow-long-right' type='entypo' color='#517fa4' />
-      </View>
-      <View style={styles.itemBottomRowRight}>
-        <View style={styles.markerView}>
-          <Icon name='location-pin' type='entypo' color='#517fa4' />
-        </View>
-        <View style={styles.nodeTextView}>
-          <Text style={{fontSize: 12}}>{endNode}</Text>
-        </View>
-      </View>
-    </View> */}
+    {needsButton ? <View style={styles.queueButtonView}><Icon name='playlist-plus' size={28} color={"rgba(30,215,96,1.0)"} onPress={addToQueue}/></View>: null}
   </View>
 )};

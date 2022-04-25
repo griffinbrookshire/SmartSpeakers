@@ -36,7 +36,6 @@ expects request body in form
 {
     'id': 'sample_id', 
     'priority': 0 or 1
-    'songs': ['spotify:track:27NovPIUIRrOZoCHxABJwK', 'spotify:track:6pmNoWKk0r6zfIjWneJRxR']
 }
 '''
 @app.route('/new_user', methods=["POST"])
@@ -44,21 +43,9 @@ def new_user():
     global songs
     new_user_priority = request.get_json().get('priority')
     new_user_id = request.get_json().get('id')
-    new_user_songs = request.get_json().get('songs')
-    if not new_user_id in subscribed_users and not new_user_id == None:
-        subscribed_users.append(new_user_id)
-        users_priority[new_user_id] = new_user_priority
-        new_set = BaseMultiSet()
-        for song in new_user_songs:
-            new_set.append(song)
-        if new_user_priority == 2:
-            new_set = new_set.union(new_set)
-        temp_songs = owners_songs.intersection(new_set)
-        songs = temp_songs.union(songs)
-        songs.show()
-        return "Connected Successfully"
-    
-    return "A Problem Occurred"
+    subscribed_users.append(new_user_id)
+    users_priority[new_user_id] = new_user_priority
+    return 'User ' + new_user_id + ' signed up'
 
 '''
 speaker code will make a request to get Spotify URI for next song to play
@@ -74,10 +61,12 @@ def get_song():
     track = spotifyObject.track(element)
     track_name = track.get('name')
     artist_name = track.get('artists')[0].get('name')
+    image_url = track['album']['images'][0]['url']
     lcd_url_route = 'http://' + args.address + ":" + args.port + route
     song_data = {
         'artist': artist_name, 
-        'title': track_name
+        'title': track_name,
+        'image_url': image_url
     }
     r = requests.post(lcd_url_route, json = song_data)
     return str(element)
@@ -101,6 +90,63 @@ def current_queue():
     )
     return response
 
+'''
+Add a song to the queue
+'''
+@app.route('/current_queue', methods=["POST"])
+def current_queue_post():
+    global songs
+    user_id = request.get_json().get('user_id')
+    priority = int(users_priority[user_id])
+    queued_song = request.get_json().get('id')
+    new_set = BaseMultiSet()
+    new_set.append(queued_song)
+    if not priority == 0:
+        new_set.append(queued_song)
+    # intersect = songs.intersection(new_set)
+    # if not intersect.length() == 0:
+    songs = songs.union(new_set)
+    message = 'Song added successfully!'
+    # else:
+        # message = 'Error'
+
+    response = make_response(
+        jsonify(
+            {'status': '200', 'message': message}
+            )
+    )
+    return response
+
+'''
+Yield current playing song id
+'''
+@app.route('/currently_playing', methods=["GET"])
+def currently_playing():
+    current_song = spotifyObject.currently_playing()
+    try:
+        song_name = current_song['item']['name']
+        artist = current_song['item']['artists'][0]['name']
+        image_url = current_song['item']['album']['images'][0]['url']
+        response = make_response(
+        jsonify(
+            {
+                'artist': artist,
+                'name': song_name,
+                'image_url': image_url}
+            )
+        )
+        return response
+    except:
+        response = make_response(
+        jsonify(
+            {
+                'artist': None,
+                'name': None,
+                'image_url': None}
+            )
+        )
+        return response
+
 if __name__ == '__main__':
     # cli args
     parser = argparse.ArgumentParser(description = 'Main service command parser')
@@ -115,7 +161,7 @@ if __name__ == '__main__':
     spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID,clientSecret,redirectURI, scope = scope ))
 
     # Start our playlist with owner music
-    saved_tracks = spotifyObject.current_user_saved_tracks(limit=2)
+    saved_tracks = spotifyObject.current_user_saved_tracks(limit=5)
     for item in saved_tracks['items']:
         song_uri = item['track']['uri']
         songs.append(song_uri)
