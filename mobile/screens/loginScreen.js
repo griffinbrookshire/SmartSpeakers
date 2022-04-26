@@ -38,7 +38,7 @@ export const LoginScreen = ({ navigation }) => {
       clientId: config.SPOTIFY_CLIENT_ID,
       scope: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-library-modify", "user-follow-read", "playlist-read-private", "playlist-modify-private"],
       usePKCE: false,
-      redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+      redirectUri: 'https://auth.expo.io/@EXPO_ACCOUNT/SmartSpeakers'
     },
     discovery
   );

@@ -11,9 +11,9 @@ import argparse
 
 
 # Globals for Spotify Authentication, these should be passed by env variables
-username = 'teamtopdeck9000'
-clientID = '5f1b546e2c084571baf1f8b1d81988aa'
-clientSecret = '8c861ad1693248e6a8d1439e987a3339'
+username = 'USERNAME'
+clientID = 'CLIENT_ID'
+clientSecret = 'CLIENT_SECRET'
 redirectURI = 'http://google.com/'
 scope = ['app-remote-control', 'streaming', 'user-read-playback-state', 'user-modify-playback-state']
 

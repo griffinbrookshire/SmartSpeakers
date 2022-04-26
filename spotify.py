@@ -12,9 +12,9 @@ import requests
 from base_multi_set import BaseMultiSet
 
 # Globals for Spotify Authentication, these should be passed by env variables
-username = 'teamtopdeck9000'
-clientID = '5f1b546e2c084571baf1f8b1d81988aa'
-clientSecret = '8c861ad1693248e6a8d1439e987a3339'
+username = 'USERNAME'
+clientID = 'CLIENT ID'
+clientSecret = 'CLIENT SECRET'
 redirectURI = 'http://google.com/'
 scope = ["user-library-read", "user-read-currently-playing", "playlist-read-collaborative"]
 
