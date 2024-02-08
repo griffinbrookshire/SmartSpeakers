@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SmartSpeakers",
-    "slug": "SmartSpeakers",
+    "slug": "smartspeakers",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,6 +28,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "exp"
+    "scheme": "ss",
+    "extra": {
+      "eas": {
+        "projectId": "a08a6ce7-c3a3-4094-8caf-1f7fe492a3e9"
+      }
+    },
+    "owner": "gbrookshire5"
   }
 }

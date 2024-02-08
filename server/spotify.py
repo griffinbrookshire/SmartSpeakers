@@ -2,7 +2,6 @@
 Main Webserver to for Smart Speaker
 '''
 
-
 # Relevant Imports
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -10,14 +9,17 @@ from flask import Flask, request, make_response, jsonify
 import argparse 
 import requests
 from base_multi_set import BaseMultiSet
+import json
+
 
 # Globals for Spotify Authentication, these should be passed by env variables
-username = 'USERNAME'
-clientID = 'CLIENT ID'
-clientSecret = 'CLIENT SECRET'
-redirectURI = 'http://google.com/'
-scope = ["user-library-read", "user-read-currently-playing", "playlist-read-collaborative"]
-
+with open('../mobile/config.json', 'r') as config_file:
+    config = json.load(config_file)
+username = config['SPOTIFY_USERNAME']
+clientID = config['SPOTIFY_CLIENT_ID']
+clientSecret = config['SPOTIFY_CLIENT_SECRET']
+redirectURI = config['SPOTIFY_REDIRECT_URI']
+scope = ['user-library-read', 'user-read-currently-playing', 'playlist-read-collaborative']
 
 # Globals to maintain who is subscribed and what songs we can play
 subscribed_users = []
@@ -38,7 +40,7 @@ expects request body in form
     'priority': 0 or 1
 }
 '''
-@app.route('/new_user', methods=["POST"])
+@app.route('/new_user', methods=['POST'])
 def new_user():
     global songs
     new_user_priority = request.get_json().get('priority')
@@ -50,19 +52,19 @@ def new_user():
 '''
 speaker code will make a request to get Spotify URI for next song to play
 '''
-@app.route('/get_song', methods=["GET"])
+@app.route('/get_song', methods=['GET'])
 def get_song():
     global songs
     # check if our built playlist is empty
     if len(songs.data) == 0:
-        return "Playlist is empty"
+        return 'Playlist is empty'
     # O(1) way to get first element from the set
     element = songs.choose_and_remove()
     track = spotifyObject.track(element)
     track_name = track.get('name')
     artist_name = track.get('artists')[0].get('name')
     image_url = track['album']['images'][0]['url']
-    lcd_url_route = 'http://' + args.address + ":" + args.port + route
+    lcd_url_route = 'http://' + args.address + ':' + args.port + route
     song_data = {
         'artist': artist_name, 
         'title': track_name,
@@ -75,10 +77,10 @@ def get_song():
 End point on Griffin's request
 Returns list of songs in queue
 '''
-@app.route('/current_queue', methods=["GET"])
+@app.route('/current_queue', methods=['GET'])
 def current_queue():
     if len(songs.data) == 0:
-        return "No songs in queue."
+        return 'No songs in queue.'
     resp_list = []
     for i, song in enumerate(list(songs.data)):
         resp_list.append({'id': str(i), 'title': song})
@@ -93,7 +95,7 @@ def current_queue():
 '''
 Add a song to the queue
 '''
-@app.route('/current_queue', methods=["POST"])
+@app.route('/current_queue', methods=['POST'])
 def current_queue_post():
     global songs
     user_id = request.get_json().get('user_id')
@@ -120,7 +122,7 @@ def current_queue_post():
 '''
 Yield current playing song id
 '''
-@app.route('/currently_playing', methods=["GET"])
+@app.route('/currently_playing', methods=['GET'])
 def currently_playing():
     current_song = spotifyObject.currently_playing()
     try:
@@ -147,18 +149,11 @@ def currently_playing():
         )
         return response
 
+
 if __name__ == '__main__':
-    # cli args
-    parser = argparse.ArgumentParser(description = 'Main service command parser')
-    parser.add_argument('-a', '--address', default = '0.0.0.0', help = "The ip address of the lcd screen")
-    parser.add_argument('-p', '--port', default = '5000', help = "The port of the lcd screen")
-    args = parser.parse_args()
-    
-    address = args.address
-    port = args.port
-    
+
     # Authenticate
-    spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID,clientSecret,redirectURI, scope = scope ))
+    spotifyObject = spotipy.Spotify(auth_manager=SpotifyOAuth(clientID, clientSecret, redirectURI, scope=scope))
 
     # Start our playlist with owner music
     saved_tracks = spotifyObject.current_user_saved_tracks(limit=5)
@@ -173,4 +168,4 @@ if __name__ == '__main__':
     subscribed_users.append(owner_id)
 
     # Start webapp
-    app.run(debug=False, host="0.0.0.0")
+    app.run(debug=False, host=config['SERVER_HOST'], port=config['SERVER_PORT'])

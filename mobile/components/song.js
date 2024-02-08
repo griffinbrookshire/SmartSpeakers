@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from "../stylesheets/styles";
 import config from '../config.json';
 
-const HOST = config.SERVER_IP;
+const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
 
 export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => {

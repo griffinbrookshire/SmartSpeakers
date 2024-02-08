@@ -1,0 +1,5 @@
+spotipy
+flask
+argparse
+requests
+turbo_flask

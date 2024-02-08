@@ -7,7 +7,7 @@ import { styles } from "../stylesheets/styles";
 import config from '../config.json';
 import { Song } from './song.js';
 
-const HOST = config.SERVER_IP;
+const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
 
 let interval;

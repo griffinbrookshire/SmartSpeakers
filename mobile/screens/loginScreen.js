@@ -12,7 +12,7 @@ import {
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
 
-const HOST = config.SERVER_IP;
+const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
 
 WebBrowser.maybeCompleteAuthSession();
@@ -27,7 +27,7 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
   clientId: config.SPOTIFY_CLIENT_ID,
   clientSecret: config.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+  redirectUri: config.EXPO_REDIRECT_URI
 });
 
 export const LoginScreen = ({ navigation }) => {
@@ -36,9 +36,9 @@ export const LoginScreen = ({ navigation }) => {
     {
       responseType: ResponseType.Token,
       clientId: config.SPOTIFY_CLIENT_ID,
-      scope: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-library-modify", "user-follow-read", "playlist-read-private", "playlist-modify-private"],
+      scopes: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-library-modify", "user-follow-read", "playlist-read-private", "playlist-modify-private"],
       usePKCE: false,
-      redirectUri: 'https://auth.expo.io/@EXPO_ACCOUNT/SmartSpeakers'
+      redirectUri: config.EXPO_REDIRECT_URI
     },
     discovery
   );
@@ -95,7 +95,7 @@ export const LoginScreen = ({ navigation }) => {
   }, [response]);
 
   function login() {
-    promptAsync({useProxy: true})
+    promptAsync({useProxy: false})
   }
 
   return (

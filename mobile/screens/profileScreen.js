@@ -17,7 +17,7 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
   clientId: config.SPOTIFY_CLIENT_ID,
   clientSecret: config.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+  redirectUri: config.EXPO_REDIRECT_URI
 });
 
 /**

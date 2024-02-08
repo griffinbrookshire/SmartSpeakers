@@ -10,14 +10,14 @@ import { styles } from '../stylesheets/styles.js';
 import { Song } from '../components/song.js';
 import { NowPlaying } from "../components/nowPlaying";
 
-const HOST = config.SERVER_IP;
+const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
 
 var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
   clientId: config.SPOTIFY_CLIENT_ID,
   clientSecret: config.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'https://auth.expo.io/@glbrook2/SmartSpeakers'
+  redirectUri: config.EXPO_REDIRECT_URI
 });
 
 /**
