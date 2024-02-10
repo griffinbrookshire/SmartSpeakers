@@ -50,7 +50,7 @@ const Tab = createMaterialBottomTabNavigator();
                   tabBarIcon: ({ color }) => (
                     <Icon name='playlist-music' size={24} color={color} />
                   ),
-                  tabBarLabel: 'Playlist'
+                  tabBarLabel: 'Queue'
                 }}
               />
               <Tab.Screen
