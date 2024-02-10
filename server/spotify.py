@@ -6,7 +6,6 @@ Main Webserver to for Smart Speaker
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, make_response, jsonify
-import argparse 
 import requests
 from base_multi_set import BaseMultiSet
 import json
@@ -24,11 +23,7 @@ scope = ['user-library-read', 'user-read-currently-playing', 'playlist-read-coll
 # Globals to maintain who is subscribed and what songs we can play
 subscribed_users = []
 songs = BaseMultiSet()
-owners_songs = BaseMultiSet()
 users_priority = {}
-
-# Route for the POST request
-route = '/update_song'
 
 app = Flask(__name__)
 
@@ -64,7 +59,7 @@ def get_song():
     track_name = track.get('name')
     artist_name = track.get('artists')[0].get('name')
     image_url = track['album']['images'][0]['url']
-    lcd_url_route = 'http://' + args.address + ':' + args.port + route
+    lcd_url_route = 'http://' + config['SERVER_HOST'] + ':' + config['LCD_SERVER_PORT'] + '/update_song'
     song_data = {
         'artist': artist_name, 
         'title': track_name,
@@ -79,16 +74,13 @@ Returns list of songs in queue
 '''
 @app.route('/current_queue', methods=['GET'])
 def current_queue():
-    if len(songs.data) == 0:
-        return 'No songs in queue.'
     resp_list = []
-    for i, song in enumerate(list(songs.data)):
-        resp_list.append({'id': str(i), 'title': song})
+    for song_id in songs.data:
+        resp_list.append({'id': song_id})
     response = make_response(
         jsonify(
-            {
-                'songs': resp_list}
-            )
+            {'songs': resp_list}
+        )
     )
     return response
 
@@ -103,8 +95,8 @@ def current_queue_post():
     queued_song = request.get_json().get('id')
     new_set = BaseMultiSet()
     new_set.append(queued_song)
-    if not priority == 0:
-        new_set.append(queued_song)
+    # if priority == 1:
+    #     new_set.append(queued_song)
     # intersect = songs.intersection(new_set)
     # if not intersect.length() == 0:
     songs = songs.union(new_set)
@@ -158,9 +150,8 @@ if __name__ == '__main__':
     # Start our playlist with owner music
     saved_tracks = spotifyObject.current_user_saved_tracks(limit=5)
     for item in saved_tracks['items']:
-        song_uri = item['track']['uri']
-        songs.append(song_uri)
-        owners_songs.append(song_uri)
+        song_id = item['track']['id']
+        songs.append(song_id)
 
     # Disallow the owner from reconnecting
     user = spotifyObject.current_user()
@@ -168,4 +159,4 @@ if __name__ == '__main__':
     subscribed_users.append(owner_id)
 
     # Start webapp
-    app.run(debug=False, host=config['SERVER_HOST'], port=config['SERVER_PORT'])
+    app.run(debug=False, host="0.0.0.0", port=config['SERVER_PORT'])

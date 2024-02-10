@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 from turbo_flask import Turbo
-import datetime
+import json
 app = Flask(__name__)
 turbo = Turbo(app)
 
+with open('../mobile/config.json', 'r') as config_file:
+    config = json.load(config_file)
+
 title = 'Not Playing'
-artist = '----'
+artist = 'No artist'
 image_url = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 
 @app.route('/update_song', methods=["POST"])
@@ -23,5 +26,4 @@ def root():
     return render_template('index.html', title = title, artist = artist, image_url = image_url)
 
 if __name__ == '__main__':
-    app.run(debug=False, host="0.0.0.0")
-
+    app.run(debug=False, host="0.0.0.0", port=config["LCD_SERVER_PORT"])
