@@ -7,8 +7,9 @@ import {
 } from "react-native";
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
-import { Song } from '../components/song.js';
-import { NowPlaying } from "../components/nowPlaying";
+import { Song } from '../shared/Song.js';
+import { NowPlaying } from "../shared/NowPlaying.js";
+import { FlatListItemSeparator } from "../shared/FlatListItemSeparator.js";
 
 var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
@@ -29,19 +30,17 @@ export const MusicScreen = ({navigation, route}) => {
 	let [username, setUsername] = useState(route.params.params.username);
 	spotifyApi.setAccessToken(token);
 
-	function getSong(song, index) {
+	function processSong(song, index) {
 		var item = {
-			id: 'spotify:track:' + song.track.id,
-			title: '',
-			artist: '',
-			// Default imageUrl from random page on Google Images - might break
-			imageUrl: 'https://files.radio.co/humorous-skink/staging/default-artwork.png',
+			id: song.track.id,
+			title: song.track.name,
+			artist: song.track.album.artists[0].name,
+			// Default image from random page on Google Images - might break
+			image: 'https://files.radio.co/humorous-skink/staging/default-artwork.png',
 		}
 		if (song.track.album.images && song.track.album.images.length > 0) {
-			item.imageUrl = song.track.album.images[0].url;
+			item.image = song.track.album.images[0].url;
 		}
-		item.title = song.track.name;
-		item.artist = song.track.album.artists[0].name
 		music[index] = item;
 	}
 
@@ -52,7 +51,7 @@ export const MusicScreen = ({navigation, route}) => {
 				limit : 50,
 		})
 		.then(function(data) {
-			data.body.items.forEach(getSong);
+			data.body.items.forEach(processSong);
 			setState({ isFetching: false, refresh: !state.refresh });
 		}, function(err) {
 				console.log('Something went wrong!', err);
@@ -73,23 +72,11 @@ export const MusicScreen = ({navigation, route}) => {
 			id={item.id}
 			title={item.title}
 			artist={item.artist}
-			imageUrl={item.imageUrl}
+			image={item.image}
 			needsButton={true}
 			username={username}
 			/>
 	);
-	
-	function FlatListItemSeparator() {
-		return (
-			<View
-				style={{
-					height: 1,
-					width: "100%",
-					backgroundColor: "#000",
-				}}
-			/>
-		);
-	};
 
 	return (
 		<SafeAreaView style={styles.tabsContainer}>

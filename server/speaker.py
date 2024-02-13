@@ -40,7 +40,7 @@ if __name__ == '__main__':
         else:
             print("Not Playing. Getting next song from queue.")
             r = requests.get(url)
-            song_id = r.text
+            song_id = r.json()['id']
             try:
                 spotifyObject.start_playback(uris = [song_id])
             except (SpotifyException) as se:

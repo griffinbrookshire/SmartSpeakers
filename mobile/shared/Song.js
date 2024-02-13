@@ -5,18 +5,18 @@ import {
   Alert
 } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from "../stylesheets/styles";
+import { styles, spotifyGreen } from "../stylesheets/styles";
 import config from '../config.json';
 
 const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
 
-export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => {
+export const Song = ({ id, title, artist, image, needsButton, username }) => {
 
   function addToQueue() {
     Alert.alert(
-      "Add to Playlist",
-      `Add \'${title}\' to the playlist?`,
+      "Add to Queue",
+      `Add \'${title}\' to the queue?`,
       [
         {text: "No", onPress: () => console.log('Sike, you thought')},
         {text: "Yes", onPress: () => postSongToQueue()}
@@ -28,7 +28,7 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: id, user_id: username})
+      body: JSON.stringify({id: id, title: title, artist: artist, image, image, user: username})
     };
     fetch(`http://${HOST}:${PORT}/current_queue`, options)
       .then(async response => {
@@ -43,8 +43,8 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
         }
 
         Alert.alert(
-          "Song Request Result",
-          data.message,
+          "Queue Request Result",
+          "Successfully queued your song",
           [
             {text: "OK"}
           ]
@@ -52,18 +52,18 @@ export const Song = ({ id, title, artist, imageUrl, needsButton, username }) => 
 
       })
       .catch(error => {
-          console.error('There was an error adding song to playlist.');
+          console.error('There was an error adding song to queue.');
           console.error(error)
       });
   }
 
   return(
   <View style={styles.itemView}>
-    <Image source={imageUrl ? {uri: imageUrl} : {uri: 'https://files.radio.co/humorous-skink/staging/default-artwork.png'}} style={styles.albumCoverImage}/>
+    <Image source={image ? {uri: image} : {uri: 'https://files.radio.co/humorous-skink/staging/default-artwork.png'}} style={styles.albumCoverImage}/>
     <View style={styles.songInfo}>
-      <Text>{title.substring(0,42)}</Text>
-      <Text>{artist.substring(0,42)}</Text>
+      <Text>{title.substring(0,40)}</Text>
+      <Text>{artist.substring(0,40)}</Text>
     </View>
-    {needsButton ? <View style={styles.queueButtonView}><Icon name='playlist-plus' size={28} color={"rgba(30,215,96,1.0)"} onPress={addToQueue}/></View>: null}
+    {needsButton ? <View style={styles.queueButtonView}><Icon name='playlist-plus' size={28} color={spotifyGreen} onPress={addToQueue}/></View>: null}
   </View>
 )};

@@ -11,7 +11,7 @@ import {
 import { Icon } from 'react-native-elements';
 import config from '../config.json';
 import { styles } from '../stylesheets/styles.js';
-import { NowPlaying } from "../components/nowPlaying";
+import { NowPlaying } from "../shared/NowPlaying.js";
 
 var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({

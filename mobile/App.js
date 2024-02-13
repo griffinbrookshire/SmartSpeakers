@@ -4,10 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
-import { LoginScreen } from './screens/loginScreen.js';
-import { QueueScreen } from './screens/queueScreen.js';
-import { ProfileScreen } from './screens/profileScreen.js';
-import { MusicScreen } from './screens/musicScreen.js';
+import { LoginScreen } from './screens/LoginScreen.js';
+import { QueueScreen } from './screens/QueueScreen.js';
+import { ProfileScreen } from './screens/ProfileScreen.js';
+import { MusicScreen } from './screens/MusicScreen.js';
+
+import { spotifyGreen } from './stylesheets/styles.js';
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -30,7 +32,7 @@ const Tab = createMaterialBottomTabNavigator();
         {/* Allows children elements of 'TabNavigation' to all view the same params */}
         <Stack.Screen name="TabNavigation" >
           { (props) => (
-            <Tab.Navigator barStyle={{ backgroundColor: "rgba(30,215,96,1.0)" }}>
+            <Tab.Navigator barStyle={{ backgroundColor: spotifyGreen }}>
               <Tab.Screen
                 name="Profile"
                 component={ProfileScreen}

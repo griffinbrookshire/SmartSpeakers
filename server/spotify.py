@@ -1,5 +1,5 @@
 '''
-Main Webserver to for Smart Speaker
+Main web server for SmartSpeaker
 '''
 
 # Relevant Imports
@@ -23,9 +23,11 @@ scope = ['user-library-read', 'user-read-currently-playing', 'playlist-read-coll
 # Globals to maintain who is subscribed and what songs we can play
 subscribed_users = []
 songs = BaseMultiSet()
-users_priority = {}
+# users_priority = {}
 
+# Initialize Flask app
 app = Flask(__name__)
+
 
 '''
 accepts user id and selected songs and adds it to our subscribed users list
@@ -38,10 +40,10 @@ expects request body in form
 @app.route('/new_user', methods=['POST'])
 def new_user():
     global songs
-    new_user_priority = request.get_json().get('priority')
+    # new_user_priority = request.get_json().get('priority')
     new_user_id = request.get_json().get('id')
     subscribed_users.append(new_user_id)
-    users_priority[new_user_id] = new_user_priority
+    # users_priority[new_user_id] = new_user_priority
     return 'User ' + new_user_id + ' signed up'
 
 '''
@@ -52,47 +54,35 @@ def get_song():
     global songs
     # check if our built playlist is empty
     if len(songs.data) == 0:
-        return 'Playlist is empty'
+        return {}
     # O(1) way to get first element from the set
-    element = songs.choose_and_remove()
-    track = spotifyObject.track(element)
-    track_name = track.get('name')
-    artist_name = track.get('artists')[0].get('name')
-    image_url = track['album']['images'][0]['url']
+    song = songs.choose_and_remove()
     lcd_url_route = 'http://' + config['SERVER_HOST'] + ':' + config['LCD_SERVER_PORT'] + '/update_song'
-    song_data = {
-        'artist': artist_name, 
-        'title': track_name,
-        'image_url': image_url
+    requests.post(lcd_url_route, json = song)
+    return {
+        'id': song['id']
     }
-    r = requests.post(lcd_url_route, json = song_data)
-    return str(element)
 
 '''
-End point on Griffin's request
-Returns list of songs in queue
+Gets the current queue
 '''
 @app.route('/current_queue', methods=['GET'])
-def current_queue():
-    resp_list = []
-    for song_id in songs.data:
-        resp_list.append({'id': song_id})
-    response = make_response(
-        jsonify(
-            {'songs': resp_list}
-        )
-    )
-    return response
+def get_queue():
+    global songs
+    return {
+        'songs': songs.data
+    }
 
 '''
 Add a song to the queue
 '''
 @app.route('/current_queue', methods=['POST'])
-def current_queue_post():
+def add_queue():
     global songs
-    user_id = request.get_json().get('user_id')
-    priority = int(users_priority[user_id])
-    queued_song = request.get_json().get('id')
+    # user_id = request.get_json().get('user')
+    # priority = int(users_priority[user_id])
+    print(request.get_json())
+    queued_song = request.get_json()
     new_set = BaseMultiSet()
     new_set.append(queued_song)
     # if priority == 1:
@@ -100,46 +90,34 @@ def current_queue_post():
     # intersect = songs.intersection(new_set)
     # if not intersect.length() == 0:
     songs = songs.union(new_set)
-    message = 'Song added successfully!'
-    # else:
-        # message = 'Error'
-
-    response = make_response(
-        jsonify(
-            {'status': '200', 'message': message}
-            )
-    )
+    response = make_response()
+    response.status_code = 200
     return response
 
 '''
-Yield current playing song id
+Yield current playing song
 '''
 @app.route('/currently_playing', methods=['GET'])
 def currently_playing():
     current_song = spotifyObject.currently_playing()
     try:
-        song_name = current_song['item']['name']
+        id = current_song['item']['id']
+        title = current_song['item']['name']
         artist = current_song['item']['artists'][0]['name']
-        image_url = current_song['item']['album']['images'][0]['url']
-        response = make_response(
-        jsonify(
-            {
-                'artist': artist,
-                'name': song_name,
-                'image_url': image_url}
-            )
-        )
-        return response
+        image = current_song['item']['album']['images'][0]['url']
+        return {
+            'id': id,
+            'artist': artist,
+            'title': title,
+            'image': image
+        }
     except:
-        response = make_response(
-        jsonify(
-            {
-                'artist': None,
-                'name': None,
-                'image_url': None}
-            )
-        )
-        return response
+        return {
+            'id': None,
+            'artist': None,
+            'title': None,
+            'image': None
+        }
 
 
 if __name__ == '__main__':
@@ -149,9 +127,18 @@ if __name__ == '__main__':
 
     # Start our playlist with owner music
     saved_tracks = spotifyObject.current_user_saved_tracks(limit=5)
-    for item in saved_tracks['items']:
-        song_id = item['track']['id']
-        songs.append(song_id)
+    for track in saved_tracks['items']:
+        id = track['track']['id']
+        title = track['track']['name']
+        artist = track['track']['artists'][0]['name']
+        image = track['track']['album']['images'][0]['url']
+        song = {
+            'id': id,
+            'title': title,
+            'artist': artist,
+            'image': image
+        }
+        songs.append(song)
 
     # Disallow the owner from reconnecting
     user = spotifyObject.current_user()

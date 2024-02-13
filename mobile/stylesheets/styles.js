@@ -1,10 +1,13 @@
 import { StyleSheet, StatusBar } from "react-native";
 
-export const styles = StyleSheet.create({
+const spotifyGreen = "rgba(30,215,96,1.0)";
+const spotifyGreenTransparent = "rgba(30,215,96,0.35)";
+
+const styles = StyleSheet.create({
 
   loginContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: spotifyGreenTransparent,
     alignItems: "center",
     justifyContent: "center",
     marginTop: StatusBar.currentHeight || 0,
@@ -14,7 +17,7 @@ export const styles = StyleSheet.create({
 
   tabsContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: spotifyGreenTransparent,
     marginTop: StatusBar.currentHeight || 0,
     height: "100%",
     width: "100%"
@@ -32,7 +35,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 20,
-    backgroundColor: "rgba(30,215,96,1.0)",
+    backgroundColor: spotifyGreen,
   },
 
   titleContainer: {
@@ -86,7 +89,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 30,
-    backgroundColor: "rgba(30,215,96,1.0)",
+    backgroundColor: spotifyGreen,
   },
 
   profileBtn: {
@@ -96,7 +99,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 30,
-    backgroundColor: "rgba(30,215,96,1.0)",
+    backgroundColor: spotifyGreen,
   },
 
   userIconView: {
@@ -108,7 +111,7 @@ export const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: "rgba(30,215,96,1.0)",
+    borderColor: spotifyGreen,
     marginBottom: 20
   },
 
@@ -125,7 +128,7 @@ export const styles = StyleSheet.create({
   },
 
   nowPlayingView: {
-    backgroundColor: "rgba(30,215,96,1.0)",
+    backgroundColor: spotifyGreen,
     borderColor: "black",
     borderTopWidth: 3,
     borderBottomWidth: 3,
@@ -134,3 +137,5 @@ export const styles = StyleSheet.create({
   },
 
 });
+
+export { spotifyGreen, spotifyGreenTransparent, styles };

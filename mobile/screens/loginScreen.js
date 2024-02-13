@@ -36,7 +36,7 @@ export const LoginScreen = ({ navigation }) => {
     {
       responseType: ResponseType.Token,
       clientId: config.SPOTIFY_CLIENT_ID,
-      scopes: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-library-modify", "user-follow-read", "playlist-read-private", "playlist-modify-private"],
+      scopes: ["user-library-read", "user-read-private", "user-read-email", "user-read-recently-played", "playlist-read-collaborative", "user-top-read", "user-follow-read", "playlist-read-private"],
       usePKCE: false,
       redirectUri: config.EXPO_REDIRECT_URI
     },
@@ -79,7 +79,7 @@ export const LoginScreen = ({ navigation }) => {
                 navigation.navigate('TabNavigation', { screen: 'Queue', params: { token: access_token, username: username, priority: priority } });
               })
               .catch(error => {
-                  console.error('There was an error adding song to playlist.');
+                  console.error('There was an error logging in.');
                   console.error(error)
               });
           },

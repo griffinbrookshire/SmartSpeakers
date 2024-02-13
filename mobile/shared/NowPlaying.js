@@ -3,9 +3,9 @@ import {
   View,
 } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { styles } from "../stylesheets/styles";
+import { styles } from "../stylesheets/styles.js";
 import config from '../config.json';
-import { Song } from './song.js';
+import { Song } from './Song.js';
 
 const HOST = config.SERVER_HOST;
 const PORT = config.SERVER_PORT;
@@ -16,7 +16,7 @@ export const NowPlaying = () => {
 
   let [title, setTitle] = useState('Not Playing');
   let [artist, setArtist] = useState('----');
-  let [imageUrl, setImageUrl] = useState('https://files.radio.co/humorous-skink/staging/default-artwork.png')
+  let [image, setImage] = useState('https://files.radio.co/humorous-skink/staging/default-artwork.png')
 
   function getCurrentlyPlaying() {
     const options = {
@@ -29,7 +29,7 @@ export const NowPlaying = () => {
 
         if (data.name) setTitle(data.name);
         if (data.artist) setArtist(data.artist);
-        if (data.image_url) setImageUrl(data.image_url);
+        if (data.image) setImage(data.image);
 
       })
       .catch(error => {
@@ -54,7 +54,7 @@ export const NowPlaying = () => {
       <Song
         title={title}
         artist={artist}
-        imageUrl={imageUrl}
+        image={image}
       />
     </View>
 )};
